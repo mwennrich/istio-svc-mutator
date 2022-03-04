@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: istio-svc-mutator
+  namespace: istio-ingress
+spec:
+  selector:
+    matchLabels:
+      app: istio-svc-mutator
+  template:
+    metadata:
+      labels:
+        app: istio-svc-mutator
+    spec:
+      securityContext:
+        runAsUser: 999
+      containers:
+        - name: istio-svc-mutator
+          image: mwennrich/istio-svc-mutator:latest
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          volumeMounts:
+            - name: tls
+              mountPath: "/etc/istio-svc-mutator/"
+      volumes:
+        - name: tls
+          secret:
+            secretName: istio-svc-mutator-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-svc-mutator
+  namespace: istio-ingress
+spec:
+  ports:
+    - port: 443
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: istio-svc-mutator
