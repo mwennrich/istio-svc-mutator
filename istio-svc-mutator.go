@@ -22,15 +22,19 @@ type config struct {
 	keyFile  string
 }
 
-func initFlags() *config {
+func initFlags() (*config, error) {
 	cfg := &config{}
 
 	fl := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	fl.StringVar(&cfg.certFile, "tls-cert-file", "/etc/istio-svc-mutator/cert.pem", "TLS certificate file")
 	fl.StringVar(&cfg.keyFile, "tls-key-file", "/etc/istio-svc-mutator/key.pem", "TLS key file")
 
-	fl.Parse(os.Args[1:])
-	return cfg
+	err := fl.Parse(os.Args[1:])
+	if err != nil {
+		return nil,
+			err
+	}
+	return cfg, nil
 }
 
 func run() error {
@@ -38,7 +42,10 @@ func run() error {
 	logrusLogEntry.Logger.SetLevel(logrus.DebugLevel)
 	logger := kwhlogrus.NewLogrus(logrusLogEntry)
 
-	cfg := initFlags()
+	cfg, err := initFlags()
+	if err != nil {
+		return err
+	}
 
 	// Create mutator.
 	mt := kwhmutating.MutatorFunc(func(_ context.Context, _ *kwhmodel.AdmissionReview, obj metav1.Object) (*kwhmutating.MutatorResult, error) {
