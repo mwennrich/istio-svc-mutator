@@ -56,7 +56,6 @@ func run() error {
 			return &kwhmutating.MutatorResult{}, nil
 		}
 
-		fmt.Print("Mutating service: ", svc.Name)
 		// Mutate our object with the required annotations.
 		if svc.Name == "istio-ingressgateway" && svc.Namespace == "istio-ingress" {
 			svc.Spec.ExternalTrafficPolicy = corev1.ServiceExternalTrafficPolicyTypeLocal
