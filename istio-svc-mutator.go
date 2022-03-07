@@ -20,6 +20,7 @@ import (
 type config struct {
 	certFile string
 	keyFile  string
+	HealthCheckNodePort int
 }
 
 func initFlags() (*config, error) {
@@ -28,6 +29,7 @@ func initFlags() (*config, error) {
 	fl := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 	fl.StringVar(&cfg.certFile, "tls-cert-file", "/etc/istio-svc-mutator/cert.pem", "TLS certificate file")
 	fl.StringVar(&cfg.keyFile, "tls-key-file", "/etc/istio-svc-mutator/key.pem", "TLS key file")
+	fl.IntVar(&cfg.HealthCheckNodePort, "health-check-node-port", 31397, "Health check node port")
 
 	err := fl.Parse(os.Args[1:])
 	if err != nil {
@@ -58,7 +60,7 @@ func run() error {
 		// Mutate our object with the required annotations.
 		if svc.Name == "istio-ingressgateway" && svc.Namespace == "istio-ingress" {
 			svc.Spec.ExternalTrafficPolicy = corev1.ServiceExternalTrafficPolicyTypeLocal
-			svc.Spec.HealthCheckNodePort = 31397
+			svc.Spec.HealthCheckNodePort = int32(cfg.HealthCheckNodePort)
 		}
 
 		return &kwhmutating.MutatorResult{MutatedObject: svc}, nil
