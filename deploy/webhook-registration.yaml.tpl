@@ -14,12 +14,13 @@ webhooks:
   failurePolicy: Ignore
   matchPolicy: Exact
   name: istio-svc-mutator.metal-stack.dev
-  namespaceSelector:
+  namespaceSelector: {}
+  objectSelector:
     matchExpressions:
-    - key: kubernetes.io/metadata.name
-      operator: "In"
+    - key: app
+      operator: In
       values:
-        - "istio-ingress"
+      - istio-ingressgateway
   rules:
   - apiGroups:
     - ""
