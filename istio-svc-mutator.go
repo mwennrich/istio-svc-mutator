@@ -51,6 +51,7 @@ func run() error {
 		// Mutate our object with the required annotations.
 		if svc.Name == "istio-ingressgateway" && svc.Namespace == "istio-ingress" {
 			svc.Spec.ExternalTrafficPolicy = corev1.ServiceExternalTrafficPolicyTypeLocal
+			svc.Spec.HealthCheckNodePort = 31397
 		}
 
 		return &kwhmutating.MutatorResult{MutatedObject: svc}, nil
